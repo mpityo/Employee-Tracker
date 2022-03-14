@@ -2,4 +2,4 @@
 node_modules/
 jspm_packages/
 
-util/sql-connect.config
+util/sql-connect.js
