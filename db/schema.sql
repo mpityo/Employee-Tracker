@@ -13,6 +13,7 @@ CREATE TABLE role (
     title VARCHAR(30) NOT NULL,
     salary DECIMAL(12,2) NOT NULL,
     department_id INTEGER,
+    CONSTRAINT uc_title UNIQUE (title),
     CONSTRAINT fk_department FOREIGN KEY (department_id) REFERENCES departments(id)
 );
 
