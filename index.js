@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const db = require('./db/connection');
-const { showDepartments, addDepartment, deleteDepartment } = require('./lib/departments');
+const { showDepartments, addDepartment, deleteDepartment, utilizedBudget } = require('./lib/departments');
 const { showRoles, addRole, deleteRole } = require('./lib/roles');
+const { showAllEmployees, showEmployeeBy, addEmployee, deleteEmployee } = require('./lib/employees');
 
-showRoles();
+showAllEmployees();
