@@ -15,7 +15,7 @@ VALUES
     ('Salesperson', 25000, 1),
     ('Customer Experience', 25000, 1),
     ('Front Supervisor', 33000, 1),
-    ('Truck Stock', 25000, 2),
+    ('Truck Unload Associate', 25000, 2),
     ('Restock Expert', 25000, 2),
     ('Back Supervisor', 33000, 2),
     ('Product Procurement Associate', 40000, 3),
