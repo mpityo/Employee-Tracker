@@ -98,8 +98,41 @@ function viewData () {
     });
 }
 
-function deleteData () {
-    headOfProgram();
+function deleteData (whatToDelete) {
+	if (whatToDelete === 'department') {
+		inquirer.prompt([
+			{
+				type: 'number',
+				name: 'deptId',
+				message: "Input the department ID you'd like to delete (WARNING: deleting a department will also delete the associated roles):"
+			}
+		])
+		.then((id) => {
+			deleteDepartment(id);
+		})
+		.then(() => {
+			headOfProgram();
+		});
+	} else {
+		inquirer.prompt([
+			{
+				type: 'number',
+				name: 'deleteId',
+				message: `Input the ${whatToDelete} ID you'd like to delete:`
+			}
+		])
+		.then((id) => {
+			if (whatToDelete === 'role') {
+				deleteRole(id);
+			} else
+			if (whatToDelete === 'employee') {
+				deleteEmployee(id);
+			}
+		})
+		.then(() => {
+			headOfProgram();
+		})
+	}
 }
 
 function addData (whatToAdd) {
