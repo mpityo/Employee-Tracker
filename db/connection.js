@@ -1,12 +1,14 @@
 const mysql = require('mysql2');
 const { host, user, password } = require('../util/sql-connect');
+const bluebird = require('bluebird');
 
-const db = mysql.createConnection(
+const db =  mysql.createConnection(
     {
         host,
         user,
         password,
-        database: 'store'
+        database: 'store',
+        Promise: bluebird
     },
     console.log('Connected to the store database')
 );
