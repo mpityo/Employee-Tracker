@@ -5,66 +5,76 @@ const { showRoles, addRole, deleteRole } = require('./lib/roles');
 const { sortEmployeeBy, addEmployee, deleteEmployee, updateEmployee } = require('./lib/employees');
 const { getChoicesList } = require('./lib/allFunction');
 
-/*
-*What would you like to do?
- - Update information
-    *What would you like to update?
-     - Department name
-     - Role information (name, salary, department it belongs to)
-     - Employee information (name, role, manager)
-        *Please enter the updated information (LEAVE BLANK TO KEEP CURRENT VALUE)
-         - ???
-         - ???
-         - ???
-        ** response for sucessfull or not **
-        ** return to front of program **
- - Add information
-    *What would you like to add?
-     - Department
-        * Please enter the information
-         - Department name:
-     - Role
-         - Role name:
-         - Department it belongs to:
-         - Salary:
-     - Employee
-         - First name:
-         - Last name:
-         - Role: (select from list)
-         - Manager: (select from list)
-        ** Can I make this all one function?
- - Delete information
-    *What would you like to delete?
-     - Department
-     - Role
-     - Employee
-     - Entire store
- - View information
-    *
- - Quit
-*/
-
-function changeData () {
-    let choices = [];
-    inquirer.prompt([
-        {
-            type: 'list',
-            name: 'mainChoice',
-            message: 'What would you like to update?',
-            choices: [
-                'Department name',
-                'Role information (name, salary, department it belongs to)',
-                'Employee information (name, role, manager id)'
-            ]
-        }
-    ])
-    .then((answer) => {
-        if (answer.mainChoice.charAt(0) === 'D') {
-            return `SELECT name FROM departments`;
-        } else if (answer.mainChoice.charAt(0) === 'R') {
-            return `SELECT title FROM role`;
-        }
-    });
+function changeData (whatToChange) {
+	if (whatToChange === 'department') {
+	    inquirer.prompt([
+	        {
+	            type: 'number',
+	            name: 'deptId',
+	            message: 'What department would you like to update? (ID)'
+	        },
+			{
+				type: 'input',
+				name: 'deptName',
+				message: 'What would you like to update the name to?'
+			}
+	    ])
+	    .then((answer) => {
+	        updateDepartment(answer.deptName, answer.deptId);
+	    })
+		.then(() => {
+			headOfProgram();
+		});
+	} else 
+	if (whatToChange === 'employee') {
+		inquirer.prompt([
+	        {
+	            type: 'number',
+	            name: 'empId',
+	            message: 'What employee would you like to update? (ID)'
+				validate: (empIdInput) => {
+					if (empIdInput) {
+						return true;
+					} else {
+						console.log("Must enter a valid employee id");
+						return false;
+					}
+				}
+	        },
+			{
+				type: 'input',
+				name: 'employeeFirstName',
+				message: 'What would you like to update the first name to? (Leave blank to keep the same)'
+			},
+			{
+				type: 'input',
+				name: 'employeeLastName',
+				message: 'What would you like to update the last name to? (Leave blank to keep the same)'
+			},
+			{
+	            type: 'number',
+	            name: 'roleId',
+	            message: 'What role would you like to update the employee with? (ID) (Leave blank to keep the same)'
+			},
+			{
+	            type: 'number',
+	            name: 'managerId',
+	            message: 'What manager would you like to update the employee with? (ID) (Leave blank to keep the same)'
+			}
+	    ])
+	    .then((answers) => {
+			const answerArr = [];
+			Object.values(answers).forEach(val => {
+				if (val != '') {
+					answerArr += [val];
+				}
+			})
+			updateEmployee(answers.empId, answerArr);
+	    })
+		.then(() => {
+			headOfProgram();
+		});
+	}
 }
 
 function viewData () {
@@ -108,7 +118,7 @@ function deleteData (whatToDelete) {
 			}
 		])
 		.then((id) => {
-			deleteDepartment(id);
+			deleteDepartment(id.deptId);
 		})
 		.then(() => {
 			headOfProgram();
@@ -117,16 +127,16 @@ function deleteData (whatToDelete) {
 		inquirer.prompt([
 			{
 				type: 'number',
-				name: 'deleteId',
+				name: 'id',
 				message: `Input the ${whatToDelete} ID you'd like to delete:`
 			}
 		])
 		.then((id) => {
 			if (whatToDelete === 'role') {
-				deleteRole(id);
+				deleteRole(id.id);
 			} else
 			if (whatToDelete === 'employee') {
-				deleteEmployee(id);
+				deleteEmployee(id.id);
 			}
 		})
 		.then(() => {
@@ -250,7 +260,8 @@ function headOfProgram () {
                 "Add role",
                 "Add employee",
                 new inquirer.Separator(),
-                "Update information",
+                "Update department",
+				"Update employee",
                 new inquirer.Separator(),
                 "Delete department",
                 "Delete role",
@@ -265,7 +276,7 @@ function headOfProgram () {
     ]).then((answer) => {
         const ans = answer.initialRoute;
         if (ans.includes("Add")) addData(ans.substring(4));
-        else if (ans === "Update information") changeData();
+        else if (ans === "Update information") changeData(ans.substring(7));
         else if (ans === "Delete information") deleteData(ans.substring(7));
         else if (ans === "View information") viewData();
         else console.log("Goodbye!");
