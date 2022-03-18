@@ -34,6 +34,7 @@ function changeData (whatToChange) {
 			}
 	    ])
 	    .then((answer) => {
+            console.log('\n');
             if (answer.deptId === '') {
                 console.log('No changes were made');
             } else {
@@ -103,6 +104,7 @@ function changeData (whatToChange) {
 				}
             }
 
+            console.log('\n');
             // if all answers were deleted due to being blank, tell user and go back to main
             if (Object.values(answers).length != 0) {
 			    updateEmployee(empId, answers);
@@ -131,6 +133,7 @@ function viewData () {
             ],
         }
     ]).then((answer) => {
+        console.log('\n');
         if (answer.viewWhat.includes("departments")) {
             showDepartments();
         } else if (answer.viewWhat.includes("roles")) {
@@ -158,6 +161,7 @@ function utilizationData () {
         }
     ])
     .then((ans) => {
+        console.log('\n');
         utilizedBudget(ans.deptId);
     })
     .then(() => {
@@ -176,6 +180,7 @@ function deleteData (whatToDelete) {
 			}
 		])
 		.then((ansObj) => {
+            console.log('\n');
             if (isNaN(ansObj.deptId)) {
                 console.log("No changes were made, since input was left blank or was a non number.");
             } else {
@@ -203,6 +208,7 @@ function deleteData (whatToDelete) {
 			}
 		])
 		.then((ansObj) => {
+            console.log('\n');
 			if (whatToDelete === 'role') {
 				deleteRole(ansObj.id);
 			} else
@@ -234,6 +240,7 @@ function addData (whatToAdd) {
                 }
             }
         ]).then((deptName) => {
+            console.log('\n');
             addDepartment(deptName.nameOfDept);
         }).then(() => {
             headOfProgram();
@@ -255,12 +262,12 @@ function addData (whatToAdd) {
                 }
             },
             {
-                type: 'number',
+                type: 'input',
                 name: 'salary',
                 message: 'Enter a salary for the role',
                 validate: (salaryInput) => {
-                    if (!salaryInput) {
-                        console.log('Must enter a valid number for salary');
+                    if (isNaN(salaryInput) || salaryInput === '') {
+                        console.log("Please enter a valid number!");
                         return false;
                     } else {
                         return true;
@@ -268,12 +275,21 @@ function addData (whatToAdd) {
                 }
             },
             {
-                type: 'number',
+                type: 'input',
                 name: 'departmentId',
                 message: `Enter department ID it belongs to`,
+                validate: (deptIdInput) => {
+                    if (isNaN(deptIdInput) || deptIdInput === '') {
+                        console.log("Please enter a valid number!");
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
             }
         ])
         .then((answers) => {
+            console.log('\n');
             addRole(answers.nameOfRole, answers.salary, answers.departmentId);
         })
         .then(() => {
@@ -320,6 +336,7 @@ function addData (whatToAdd) {
             }
         ])
         .then((answers) => {
+            console.log('\n');
             addEmployee(answers.firstName, answers.lastName, answers.roleId, answers.managerId);
         })
         .then(() => {
