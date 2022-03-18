@@ -8,18 +8,37 @@ function changeData (whatToChange) {
 	if (whatToChange === 'department') {
 	    inquirer.prompt([
 	        {
-	            type: 'number',
+	            type: 'input',
 	            name: 'deptId',
 	            message: 'What department would you like to update? (ID)'
 	        },
 			{
 				type: 'input',
 				name: 'deptName',
-				message: 'What would you like to update the name to?'
+				message: 'What would you like to update the name to?',
+                validate: (deptNameInput) => {
+                    if (!deptNameInput) {
+                        console.log('Must put in a name!');
+                        return false;
+                    } else {
+                        return true;
+                    }
+                },
+                when: ({ deptId }) => {
+                    if (deptId != '') {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
 			}
 	    ])
 	    .then((answer) => {
-	        updateDepartment(answer.deptName, answer.deptId);
+            if (answer.deptId === '') {
+                console.log('No changes were made');
+            } else {
+	            updateDepartment(answer.deptName, answer.deptId);
+            }
 	    })
 		.then(() => {
 			headOfProgram();
@@ -28,15 +47,15 @@ function changeData (whatToChange) {
 	if (whatToChange === 'employee') {
 		inquirer.prompt([
 	        {
-	            type: 'number',
+	            type: 'input',
 	            name: 'empId',
 	            message: 'What employee would you like to update? (ID)',
 				validate: (empIdInput) => {
-					if (empIdInput) {
-						return true;
-					} else {
+					if (isNaN(empIdInput) || empIdInput === '') {
 						console.log("Must enter a valid employee id");
 						return false;
+					} else {
+						return true;
 					}
 				}
 	        },
@@ -67,17 +86,29 @@ function changeData (whatToChange) {
             delete answers[Object.keys(answers)[0]];
 
             // loop thru each obj and if blank or invalid, delete
-            let number = 0;
-			Object.values(answers).forEach((val) => {
-				if (val === '' || isNaN(val)) {
-                    delete answers[Object.keys(answers)[number]];
-                    console.log('deleted ' + number);
-                    return;
-				}
-                number++;
-			});
+            let number = Object.values(answers).length;
 
-			updateEmployee(empId, answers);
+            for (var i = 0; i < number; i++) {
+                let keys = Object.keys(answers);
+                let values = Object.values(answers);
+                
+                // if the current value is blank, or if there's a number that was left blank,
+                // delete from object and update the respective numbers for the lowered obj list
+                if (values[i] === '' || 
+                    isNaN(values[i]) && keys[i] != 'first_name' && keys[i] != 'last_name') 
+                {
+                    delete answers[keys[i]];
+                    i--;
+                    number--;
+				}
+            }
+
+            // if all answers were deleted due to being blank, tell user and go back to main
+            if (Object.values(answers).length != 0) {
+			    updateEmployee(empId, answers);
+            } else {
+                console.log('No changes were made');
+            }
 	    })
 		.then(() => {
 			headOfProgram();
@@ -135,6 +166,7 @@ function utilizationData () {
 }
 
 function deleteData (whatToDelete) {
+    // delete a department
 	if (whatToDelete === 'department') {
 		inquirer.prompt([
 			{
@@ -143,26 +175,39 @@ function deleteData (whatToDelete) {
 				message: "Input the department ID you'd like to delete (WARNING: deleting a department will also delete the associated roles):"
 			}
 		])
-		.then((id) => {
-			deleteDepartment(id.deptId);
+		.then((ansObj) => {
+            if (isNaN(ansObj.deptId)) {
+                console.log("No changes were made, since input was left blank or was a non number.");
+            } else {
+                deleteDepartment(ansObj.deptId);
+            }
 		})
 		.then(() => {
 			headOfProgram();
 		});
+    // delete role or employee
 	} else {
 		inquirer.prompt([
 			{
-				type: 'number',
+				type: 'input',
 				name: 'id',
-				message: `Input the ${whatToDelete} ID you'd like to delete:`
+				message: `Input the ${whatToDelete} ID you'd like to delete:`,
+                validate: (idInput) => {
+                    if (isNaN(idInput) || idInput === '') {
+                        console.log("Please put in a number!");
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
 			}
 		])
-		.then((id) => {
+		.then((ansObj) => {
 			if (whatToDelete === 'role') {
-				deleteRole(id.id);
+				deleteRole(ansObj.id);
 			} else
 			if (whatToDelete === 'employee') {
-				deleteEmployee(id.id);
+				deleteEmployee(ansObj.id);
 			}
 		})
 		.then(() => {
@@ -212,7 +257,15 @@ function addData (whatToAdd) {
             {
                 type: 'number',
                 name: 'salary',
-                message: 'Enter a salary for the role'
+                message: 'Enter a salary for the role',
+                validate: (salaryInput) => {
+                    if (!salaryInput) {
+                        console.log('Must enter a valid number for salary');
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
             },
             {
                 type: 'number',
