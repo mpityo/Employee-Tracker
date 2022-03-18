@@ -3,7 +3,6 @@ const db = require('./db/connection');
 const { showDepartments, addDepartment, updateDepartment, deleteDepartment, utilizedBudget } = require('./lib/departments');
 const { showRoles, addRole, deleteRole } = require('./lib/roles');
 const { sortEmployeeBy, addEmployee, deleteEmployee, updateEmployee } = require('./lib/employees');
-const { getChoicesList } = require('./lib/allFunction');
 
 function changeData (whatToChange) {
 	if (whatToChange === 'department') {
@@ -31,7 +30,7 @@ function changeData (whatToChange) {
 	        {
 	            type: 'number',
 	            name: 'empId',
-	            message: 'What employee would you like to update? (ID)'
+	            message: 'What employee would you like to update? (ID)',
 				validate: (empIdInput) => {
 					if (empIdInput) {
 						return true;
@@ -43,33 +42,42 @@ function changeData (whatToChange) {
 	        },
 			{
 				type: 'input',
-				name: 'employeeFirstName',
+				name: 'first_name',
 				message: 'What would you like to update the first name to? (Leave blank to keep the same)'
 			},
 			{
 				type: 'input',
-				name: 'employeeLastName',
+				name: 'last_name',
 				message: 'What would you like to update the last name to? (Leave blank to keep the same)'
 			},
 			{
 	            type: 'number',
-	            name: 'roleId',
+	            name: 'role_id',
 	            message: 'What role would you like to update the employee with? (ID) (Leave blank to keep the same)'
 			},
 			{
 	            type: 'number',
-	            name: 'managerId',
+	            name: 'manager_id',
 	            message: 'What manager would you like to update the employee with? (ID) (Leave blank to keep the same)'
 			}
 	    ])
 	    .then((answers) => {
-			const answerArr = [];
-			Object.values(answers).forEach(val => {
-				if (val != '') {
-					answerArr += [val];
+            // set empId and delete from answers obj for passing into employee func
+            const empId = answers.empId;
+            delete answers[Object.keys(answers)[0]];
+
+            // loop thru each obj and if blank or invalid, delete
+            let number = 0;
+			Object.values(answers).forEach((val) => {
+				if (val === '' || isNaN(val)) {
+                    delete answers[Object.keys(answers)[number]];
+                    console.log('deleted ' + number);
+                    return;
 				}
-			})
-			updateEmployee(answers.empId, answerArr);
+                number++;
+			});
+
+			updateEmployee(empId, answers);
 	    })
 		.then(() => {
 			headOfProgram();
@@ -102,9 +110,27 @@ function viewData () {
             sortEmployeeBy('direct_manager');
         } else if (answer.viewWhat.includes("department")) {
             sortEmployeeBy('department');
+        } else {
+            utilizationData();
         }
     }).then(() => {
         headOfProgram()
+    });
+}
+
+function utilizationData () {
+    inquirer.prompt([
+        {
+            type: 'number',
+            name: 'deptId',
+            message: 'What department would you like to view the payroll budget on? (ID)'
+        }
+    ])
+    .then((ans) => {
+        utilizedBudget(ans.deptId);
+    })
+    .then(() => {
+        headOfProgram();
     });
 }
 
@@ -268,6 +294,7 @@ function headOfProgram () {
                 "Delete employee",
                 new inquirer.Separator(),
                 "View information",
+                "View budget information",
                 new inquirer.Separator(),
                 "Quit",
                 new inquirer.Separator()
@@ -276,9 +303,10 @@ function headOfProgram () {
     ]).then((answer) => {
         const ans = answer.initialRoute;
         if (ans.includes("Add")) addData(ans.substring(4));
-        else if (ans === "Update information") changeData(ans.substring(7));
-        else if (ans === "Delete information") deleteData(ans.substring(7));
+        else if (ans.includes("Update")) changeData(ans.substring(7));
+        else if (ans.includes("Delete")) deleteData(ans.substring(7));
         else if (ans === "View information") viewData();
+        else if (ans === "View budget information") utilizationData();
         else console.log("Goodbye!");
     });
 }
