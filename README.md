@@ -10,20 +10,18 @@ Create, view, and manage a database of employees, departments and roles right fr
 ```
 npm install
 ```
-4. Go to 'util/sql-connect.js.example' and remove the .example
-5. Open the file and make changes to password and username to connect to your sql
-6. Open sql through the cmd line:
+4. Go to 'db/connection.js' and put in your password for your sql
+5. Open sql through the cmd line:
 ```
 mysql -u root -p
 ```
-7. Run schema to create database and tables:
+6. Run schema to create database and tables:
 ```
-CREATE DATABASE store;
-USE store;
+SOURCE db/db.sql;
 SOURCE db/schema.sql;
 quit;
 ```
-8. Start the program and manage away:
+7. Start the program and manage away:
 ```
 node index
 ```
