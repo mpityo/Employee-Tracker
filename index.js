@@ -369,7 +369,7 @@ function headOfProgram () {
                 "Quit",
                 new inquirer.Separator()
             ]
-        },
+        }
     ]).then((answer) => {
         const ans = answer.initialRoute;
         if (ans.includes("Add")) addData(ans.substring(4));

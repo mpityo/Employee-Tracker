@@ -1,7 +1,0 @@
-module.exports = 
-{
-    host: 'localhost',
-    user: 'root',
-    psssword: 'yourpassword',
-    database: 'store'
-}
